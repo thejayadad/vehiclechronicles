@@ -17,3 +17,7 @@
 - npm exec prisma migrate dev
 
 # HEADER
+- update layout
+- add header component
+- set the desktop and mobile nav
+- add the auth
