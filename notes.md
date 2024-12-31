@@ -27,4 +27,6 @@
 - add the auth
 
 
-# SIDEBAR
+# PROFILE
+- profilebar in layout
+- no session layout
