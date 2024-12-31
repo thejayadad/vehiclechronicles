@@ -29,7 +29,6 @@ const DesktopNav = () => {
         routes={routes}
         layout="row"
         activePath={pathname}
-        logo={<span className="font-bold text-lg">MyApp</span>} // Add a logo
       />
     </div>
   );
