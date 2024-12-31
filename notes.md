@@ -20,4 +20,8 @@
 - update layout
 - add header component
 - set the desktop and mobile nav
+- navlink
+- navigation
+- desktop
+- mobile can make either first just start with navlink
 - add the auth

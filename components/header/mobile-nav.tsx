@@ -6,6 +6,7 @@ import { FiMenu } from 'react-icons/fi';
 import SignOut from './signout-btn';
 import { usePathname } from 'next/navigation';
 import Navigation from './navigation';
+import Footer from './footer';
 
 const routes = [
   {
@@ -46,11 +47,11 @@ const MobileNav = () => {
               routes={routes}
               layout="col"
               activePath={pathname}
-              logo={<span className="font-bold text-lg">MyApp</span>} // Logo
+              logo={<span className="font-bold text-lg">VehiclesChronicles</span>} // Logo
               footer={
                 // 'CopyRight @thejayadad'
-                <div className='text-center'>
-                    Copy Right
+                <div>
+                    <Footer />
                 </div>
               } // Footer
             />
