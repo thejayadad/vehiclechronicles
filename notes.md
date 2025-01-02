@@ -26,6 +26,9 @@
 - mobile can make either first just start with navlink
 - add the auth
 
+# POST FORM
+- create teh action
+
 
 # PROFILE
 - profilebar in layout
