@@ -1,104 +1,82 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FiUpload } from 'react-icons/fi';
-import { MdClose } from 'react-icons/md';
+import { createPost } from '@/lib/action/post/create-post';
+import { updatePost } from '@/lib/action/post/update-post';
+import TitleForm from './title-form';
+import ImageUploadForm from './image-upload-form';
 
-const PostForm = () => {
+interface PostFormProps {
+  userEmail: string;
+  initialData?: {
+    title?: string;
+    description?: string;
+    imageUrl?: string;
+  };
+  postId?: string; // Optional post ID for updates
+}
+
+const PostForm: React.FC<PostFormProps> = ({ userEmail, initialData, postId }) => {
   const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<Record<string, string[] | undefined>>({});
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setImage(file);
-      setPreview(URL.createObjectURL(file)); // Generate a preview URL for the image
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+
+    if (image) {
+      formData.append('imageUrl', image);
+    }
+
+    try {
+      if (postId) {
+        await updatePost(postId, null, formData); // Update existing post
+      } else {
+        await createPost(null, formData); // Create new post
+      }
+    } catch (err: any) {
+      setError(err.error || {});
     }
   };
 
-  const removeImage = () => {
-    setImage(null);
-    setPreview(null);
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    // Add logic to handle form submission, including image and description
-    console.log('Form submitted');
-    console.log(image); // The uploaded image file
-  };
-
   return (
-    <form
-      className="max-w-4xl mx-auto py-8 px-4"
-      onSubmit={handleSubmit}
-    >
+    <form className="max-w-4xl mx-auto py-8 px-4" onSubmit={handleSubmit}>
+      {/* Hidden User Email */}
+      <input type="hidden" name="userEmail" value={userEmail} />
+
       {/* Title Field */}
-      <div className="mb-4">
-        <label
-          htmlFor="title"
-          className="block text-lg font-medium text-gray-700 mb-2"
-        >
-          Title
-        </label>
-        <input
-          id="title"
-          name="title"
-          placeholder="Title the Experience..."
-          className="w-full resize-none text-lg border-b border-gray-300 placeholder-gray-500 text-gray-800 focus:ring-0 focus:outline-none pb-2"
-          required
-        />
-      </div>
+      <TitleForm initialData={{ title: initialData?.title || '' }} error={error?.title?.[0]} />
 
-  
+      {/* Image Upload Field */}
+      <ImageUploadForm
+        error={error?.imageUrl?.[0]}
+        initialPreview={initialData?.imageUrl} // Pass the current image URL for editing
+        onImageChange={setImage}
+      />
 
-      {/* Enhanced Image Upload Field */}
-      <div className="mb-6">
-        {!preview ? (
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md p-4 hover:border-gray-500 transition-all duration-200">
-            <FiUpload className="text-gray-500 text-3xl mb-2" />
-            <p className="text-sm text-gray-500 mb-2">Click to upload or drag and drop</p>
-            <input
-              id="image"
-              name="image"
-              type="file"
-              accept="image/*"
-              className="opacity-0 absolute inset-0 cursor-pointer"
-              onChange={handleImageChange}
-            />
-          </div>
-        ) : (
-          <div className="relative mt-4">
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-full rounded-lg shadow-md"
-            />
-            <button
-              type="button"
-              onClick={removeImage}
-              className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full shadow hover:bg-red-600 transition-all duration-200"
-            >
-              <MdClose className="text-lg" />
-            </button>
-          </div>
-        )}
-      </div>
-        <div>
-            <textarea
-            rows={4}
-            placeholder='Description...'
-            
-            />
-        </div>
+      {/* Description Field */}
+{/* Description Field */}
+<div className="mb-4">
+  <textarea
+    id="description"
+    name="description"
+    rows={4}
+    placeholder="Description..."
+    defaultValue={initialData?.description || ''} // Use string directly
+    className="w-full outline-none border border-gray-300 rounded-md p-2"
+  />
+  {error?.description?.[0] && <p className="text-sm text-red-500 mt-2">{error?.description?.[0]}</p>}
+</div>
 
-      {/* Publish Button */}
+
+      {/* Submit Button */}
       <div className="flex justify-end">
         <button
           type="submit"
           className="bg-gray-600 text-white px-6 py-2 rounded-md font-medium hover:bg-gray-700 transition-all duration-200"
         >
-          Publish
+          {postId ? 'Update Post' : 'Create Post'}
         </button>
       </div>
     </form>

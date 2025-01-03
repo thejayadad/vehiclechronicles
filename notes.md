@@ -27,7 +27,9 @@
 - add the auth
 
 # POST FORM
-- create teh action
+- create the action
+- add the page
+- add the form
 
 
 # PROFILE

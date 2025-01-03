@@ -1,50 +1,52 @@
-'use server'
-import { z } from "zod";
-import { put } from "@vercel/blob";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+'use server';
+
+import { z } from 'zod';
+import { put } from '@vercel/blob';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
 
 const PostSchema = z.object({
-    title: z.string().min(1, { message: "Title is required" }),
-    userEmail: z.string().min(1, { message: "User email is required" }),
-    imageUrl: z
-      .instanceof(File)
-      .refine((file) => file.size > 0, { message: "Image is required" })
-      .refine((file) => file.size < 4000000, {
-        message: "Image must be less than 4MB",
-      }),
-      description: z.string().min(1, { message: "Description is required" }),
+  title: z.string().min(1, { message: "Title is required" }),
+  userEmail: z.string().email({ message: "User email is required" }),
+  imageUrl: z.string().min(1, { message: "Image is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
 });
 
 export const createPost = async (prevState: unknown, formData: FormData) => {
-    const validatedFields = PostSchema.safeParse(
-        Object.fromEntries(formData.entries())
-    );
+  const file = formData.get('imageUrl') as File;
 
-    if (!validatedFields.success) {
-        return {
-            error: validatedFields.error.flatten().fieldErrors,
-        };
-    }
+  if (!file || !(file instanceof File) || file.size === 0) {
+    return { error: { imageUrl: ["Image is required"] } };
+  }
 
-    const { title, userEmail, imageUrl, description } = validatedFields.data;
-    const { url } = await put(imageUrl.name, imageUrl, {
-      access: "public",
+  try {
+    const { url } = await put(file.name, file, {
+      access: 'public',
       multipart: true,
     });
 
-    try {
-        await prisma.post.create({
-            data:{
-              title, imageUrl: url, userEmail, description
-            }
-          })        
-    } catch (error) {
-        console.log("Error " + error)
-        return { message: "Failed to create data" };
-    }
-    revalidatePath("/");
-    redirect("/");
+    formData.set('imageUrl', url);
 
-}
+    const validatedFields = PostSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+      return {
+        error: validatedFields.error.flatten().fieldErrors,
+      };
+    }
+
+    const { title, userEmail, imageUrl, description } = validatedFields.data;
+
+    await prisma.post.create({
+      data: { title, imageUrl, userEmail, description },
+    });
+
+
+  } catch (error) {
+    console.error('Error creating post:', error);
+    return { message: 'Failed to create post' };
+  }
+  revalidatePath('/');
+  redirect('/');
+};
