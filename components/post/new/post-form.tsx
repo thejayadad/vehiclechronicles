@@ -5,6 +5,10 @@ import { createPost } from '@/lib/action/post/create-post';
 import { updatePost } from '@/lib/action/post/update-post';
 import TitleForm from './title-form';
 import ImageUploadForm from './image-upload-form';
+import { SubmitButton } from './submit-btn';
+import toast from "react-hot-toast";
+
+
 
 interface PostFormProps {
   userEmail: string;
@@ -32,10 +36,13 @@ const PostForm: React.FC<PostFormProps> = ({ userEmail, initialData, postId }) =
     try {
       if (postId) {
         await updatePost(postId, null, formData); // Update existing post
+        // toast.success("Post updated successfully");
       } else {
         await createPost(null, formData); // Create new post
+        // toast.success("Post created successfully");
       }
     } catch (err: any) {
+      // toast.success("Post created successfully");
       setError(err.error || {});
     }
   };
@@ -72,12 +79,8 @@ const PostForm: React.FC<PostFormProps> = ({ userEmail, initialData, postId }) =
 
       {/* Submit Button */}
       <div className="flex justify-end">
-        <button
-          type="submit"
-          className="bg-gray-600 text-white px-6 py-2 rounded-md font-medium hover:bg-gray-700 transition-all duration-200"
-        >
-          {postId ? 'Update Post' : 'Create Post'}
-        </button>
+      <SubmitButton label={postId ? 'Update' : 'Create'} />
+
       </div>
     </form>
   );

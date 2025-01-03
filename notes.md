@@ -27,10 +27,10 @@
 - add the auth
 
 # POST FORM
-- create the action
-- add the page
+- create the action | update and create
+- add the pages
 - add the form
-
+- test it out
 
 # PROFILE
 - profilebar in layout
